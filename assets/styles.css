@@ -1,7 +1,7 @@
 :root {
   --ink: #1b2622;
   --ink-soft: #5c665f;
-  --muted: #8a908a;
+  --muted: #68726a;
   --paper: #f4f1e8;
   --card: #fffdf8;
   --line: #e2ddd0;
@@ -16,8 +16,8 @@
   --amber-soft: #fbf0da;
   --blue: #315f7d;
   --blue-soft: #e8f0f5;
-  --shadow: 0 1px 2px rgba(27, 38, 34, 0.04), 0 12px 34px rgba(27, 38, 34, 0.06);
-  --radius: 18px;
+  --shadow: 0 4px 20px rgba(27, 38, 34, 0.05);
+  --radius: 12px;
 }
 
 /* 网页发行入口；离线包和桌面软件隐藏此区。 */
@@ -48,13 +48,11 @@ html {
 body {
   margin: 0;
   color: var(--ink);
-  background:
-    radial-gradient(1000px 480px at 88% -12%, rgba(198, 161, 91, 0.14), transparent 62%),
-    radial-gradient(800px 400px at 4% 18%, rgba(20, 90, 74, 0.05), transparent 60%),
-    var(--paper);
-  font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  background: var(--paper);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
   font-size: 14px;
-  line-height: 1.65;
+  line-height: 1.7;
+  line-break: strict;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -67,6 +65,26 @@ textarea {
 
 button {
   color: inherit;
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 16px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--green-dark);
+  transform: translateY(-160%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.topbar :focus-visible {
+  outline-color: #fffdf8;
 }
 
 .hidden {
@@ -111,9 +129,9 @@ button {
 
 .brand-kicker {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.08em;
   color: #cdbf9f;
   text-transform: uppercase;
 }
@@ -144,19 +162,12 @@ button {
   border-radius: 50%;
   background: #8fc7a9;
   box-shadow: 0 0 0 0 rgba(143, 199, 169, 0.5);
-  animation: pulse 2.4s ease-out infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(143, 199, 169, 0.45); }
-  70% { box-shadow: 0 0 0 7px rgba(143, 199, 169, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(143, 199, 169, 0); }
 }
 
 .shell {
   width: min(1240px, 100%);
   margin: 0 auto;
-  padding: 44px 28px 80px;
+  padding: 36px 28px 64px;
 }
 
 .fatal {
@@ -178,10 +189,10 @@ button {
 
 .hero {
   display: grid;
-  grid-template-columns: 1.02fr 0.98fr;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   align-items: center;
-  gap: clamp(36px, 6vw, 76px);
-  padding-top: 14px;
+  gap: clamp(24px, 4vw, 48px);
+  padding-top: 8px;
 }
 
 .eyebrow,
@@ -189,9 +200,9 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--green);
 }
@@ -206,8 +217,8 @@ button {
 .hero h2 {
   margin: 18px 0 20px;
   font-family: "STZhongsong", "Songti SC", "SimSun", serif;
-  font-size: clamp(36px, 4.8vw, 56px);
-  font-weight: 700;
+  font-size: clamp(32px, 3.4vw, 44px);
+  font-weight: 600;
   line-height: 1.22;
   letter-spacing: 0.01em;
   color: var(--ink);
@@ -220,31 +231,20 @@ button {
   white-space: nowrap;
 }
 
-.hero h2 span::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 5px;
-  height: 9px;
-  background: rgba(198, 161, 91, 0.26);
-  z-index: -1;
-}
-
-.hero p {
+.hero-copy > p {
   max-width: 540px;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 14.5px;
-  line-height: 1.95;
+  font-size: 15px;
+  line-height: 1.8;
 }
 
 .hero-points {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 22px;
-  margin-top: 28px;
-  padding-top: 22px;
+  gap: 8px 16px;
+  margin-top: 24px;
+  padding-top: 16px;
   border-top: 1px solid var(--line);
 }
 
@@ -276,14 +276,6 @@ button {
   position: relative;
   padding: 24px;
   overflow: hidden;
-}
-
-.import-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 3px;
-  background: linear-gradient(90deg, var(--gold), rgba(198, 161, 91, 0));
 }
 
 .import-card > .panel-kicker {
@@ -442,7 +434,7 @@ button {
   padding: 32px 22px;
   border: 1.5px dashed var(--line-strong);
   border-radius: 15px;
-  background: linear-gradient(180deg, #fffdf8, #fbf8f0);
+  background: var(--card);
   text-align: center;
   cursor: pointer;
   transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
@@ -496,7 +488,7 @@ button {
 
 .dz-hint {
   margin-top: 6px;
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -736,27 +728,37 @@ button {
 .intro-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: clamp(46px, 7vw, 76px);
+  gap: 0;
+  margin-top: 32px;
+  padding: 20px 0;
+  border-block: 1px solid var(--line);
 }
 
 .intro-card {
-  padding: 22px 22px 20px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(255, 253, 248, 0.6);
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 0 24px;
 }
 
+.intro-card:first-child { padding-left: 0; }
+.intro-card + .intro-card { border-left: 1px solid var(--line); }
+
 .intro-no {
-  display: block;
-  font-family: "STZhongsong", "Songti SC", "SimSun", serif;
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--green-soft);
+  font-variant-numeric: tabular-nums;
   font-size: 13px;
-  letter-spacing: 0.12em;
-  color: var(--gold);
+  color: var(--green);
 }
 
 .intro-card h3 {
-  margin: 8px 0 6px;
+  margin: 0 0 4px;
   font-size: 14.5px;
   font-weight: 600;
 }
@@ -764,7 +766,7 @@ button {
 .intro-card p {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.85;
 }
 
@@ -775,8 +777,8 @@ button {
 .section-head h2 {
   margin: 8px 0 8px;
   font-family: "STZhongsong", "Songti SC", "SimSun", serif;
-  font-size: clamp(26px, 3.2vw, 34px);
-  font-weight: 700;
+  font-size: clamp(24px, 2.5vw, 30px);
+  font-weight: 600;
   letter-spacing: 0.01em;
   line-height: 1.3;
 }
@@ -785,7 +787,7 @@ button {
   max-width: 720px;
   margin: 0;
   color: var(--ink-soft);
-  font-size: 12.5px;
+  font-size: 14px;
   line-height: 1.8;
 }
 
@@ -873,7 +875,7 @@ button {
   display: block;
   margin-top: 1px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
 }
 
@@ -930,7 +932,7 @@ button {
   border: 1px solid var(--line-strong);
   background: transparent;
   color: var(--ink-soft);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -1738,9 +1740,9 @@ th.is-memo .map-tag {
 .summary-label {
   display: block;
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.07em;
+  letter-spacing: 0;
 }
 
 .summary-value {
@@ -1774,7 +1776,7 @@ th.is-memo .map-tag {
   display: block;
   margin-top: 7px;
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -2082,11 +2084,15 @@ th.is-memo .map-tag {
 }
 
 .result-toolbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(220px, 310px) minmax(0, 1fr);
   align-items: center;
-  flex-wrap: wrap;
-  gap: 11px;
+  gap: 16px;
   margin-top: 26px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
 }
 
 .search-field {
@@ -2115,7 +2121,7 @@ th.is-memo .map-tag {
   outline: none;
   background: var(--card);
   color: var(--ink);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .search-field input:focus {
@@ -2131,6 +2137,7 @@ th.is-memo .map-tag {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  grid-column: 1 / -1;
 }
 
 .chip {
@@ -2139,7 +2146,7 @@ th.is-memo .map-tag {
   border-radius: 999px;
   background: var(--card);
   color: var(--ink-soft);
-  font-size: 11px;
+  font-size: 12px;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
@@ -2246,7 +2253,10 @@ th.is-memo .map-tag {
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin-left: auto;
+  grid-column: 1 / -1;
+  margin-left: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
 }
 
 .render-more {
@@ -2379,7 +2389,7 @@ th.is-memo .map-tag {
   padding: 11px 17px;
   border-bottom: 1px solid var(--line);
   color: var(--muted);
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: 0.04em;
 }
 
@@ -2398,7 +2408,7 @@ th.is-memo .map-tag {
   width: 100%;
   min-width: 1040px;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .recon-table thead th {
@@ -2406,7 +2416,7 @@ th.is-memo .map-tag {
   border-bottom: 1px solid var(--line);
   background: #f7f3e9;
   color: var(--ink-soft);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
   text-align: left;
   white-space: nowrap;
@@ -2445,7 +2455,7 @@ th.is-memo .map-tag {
   max-width: 290px;
   overflow: hidden;
   color: var(--ink);
-  font-size: 12.5px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.55;
   text-overflow: ellipsis;
@@ -2455,7 +2465,7 @@ th.is-memo .map-tag {
 .company-sub {
   margin-top: 3px;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -3141,6 +3151,7 @@ th.is-memo .map-tag {
   left: 50%;
   bottom: 28px;
   z-index: 60;
+  width: max-content;
   max-width: min(440px, calc(100vw - 32px));
   padding: 10px 18px;
   border-radius: 9px;
@@ -3183,21 +3194,20 @@ th.is-memo .map-tag {
 @media (max-width: 980px) {
   .hero {
     grid-template-columns: 1fr;
-    gap: 34px;
+    gap: 24px;
   }
 
   .hero h2 {
-    font-size: clamp(36px, 7vw, 48px);
+    font-size: 32px;
   }
 
   .import-card {
-    max-width: 620px;
+    max-width: none;
   }
 
   .intro-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin-top: 38px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 24px;
   }
 
   .mapping-grid {
@@ -3211,6 +3221,22 @@ th.is-memo .map-tag {
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+@media screen and (max-width: 980px) {
+  .recon-table thead th:first-child,
+  .recon-table .group-row > td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--card);
+    box-shadow: 1px 0 0 var(--line);
+  }
+
+  .recon-table thead th:first-child { background: #f7f3e9; }
+  .recon-table .group-row.is-open > td:first-child { background: #fbf8f0; }
+  .recon-table .group-row:hover > td:first-child { background: #fbf9f3; }
+  .recon-table .company-name { max-width: 190px; }
 }
 
 @media (max-width: 680px) {
@@ -3231,14 +3257,20 @@ th.is-memo .map-tag {
   }
 
   .hero h2 {
-    margin-top: 14px;
-    font-size: 34px;
+    margin: 10px 0 12px;
+    font-size: 30px;
     line-height: 1.28;
   }
 
-  .hero p {
-    font-size: 13px;
+  .hero-copy > p {
+    font-size: 14px;
   }
+
+  .hero-points { display: none; }
+
+  .intro-grid { grid-template-columns: 1fr; gap: 16px; }
+  .intro-card, .intro-card:first-child { padding: 0; }
+  .intro-card + .intro-card { border-left: 0; }
 
   .hero-points {
     gap: 9px 16px;
@@ -3285,10 +3317,15 @@ th.is-memo .map-tag {
   }
 
   .source-tools {
+    flex: 1 1 100%;
+    min-width: 0;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    row-gap: 4px;
+    justify-content: flex-start;
+    gap: 8px;
   }
+
+  .source-count { flex: 1 1 100%; white-space: normal; }
+  .auto-detect { min-height: 44px; }
 
   .source-row {
     grid-template-columns: auto minmax(0, 1fr) auto;
@@ -3354,11 +3391,14 @@ th.is-memo .map-tag {
   }
 
   .result-toolbar {
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
+    padding: 16px;
   }
 
   .search-field {
     max-width: none;
+    min-width: 0;
   }
 
   .filter-chips {
@@ -3367,13 +3407,36 @@ th.is-memo .map-tag {
 
   .toolbar-right {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-left: 0;
   }
 
   .sort-field select {
     min-width: 0;
   }
+
+  .shell input:not([type="checkbox"]):not([type="file"]), .shell select, .shell textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .btn, .mode-tab, .chip, .link-btn, .detail-btn, .distribution-option a {
+    min-height: 44px;
+  }
+
+  .chip, .link-btn, .distribution-option a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .import-foot { gap: 4px 12px; }
+  .import-foot .dot { display: none; }
+  .import-foot #sampleRunBtn { width: 100%; justify-content: flex-start; font-weight: 600; }
+  .result-actions .btn { flex: 1 1 calc(50% - 9px); }
+  .result-actions #exportBtn { order: -1; flex-basis: 100%; }
+  .tol-field, .age-field, .sort-field, .export-check { font-size: 13px; }
+  .summary-value { font-size: clamp(17px, 5.2vw, 21px); overflow-wrap: anywhere; }
 
   .data-check .dc-body {
     padding-left: 16px;
@@ -4224,6 +4287,12 @@ th.is-memo .map-tag {
 
 /* ---------- 打印 / 存 PDF ---------- */
 
+/* 放在控件自身的 focus 规则后，键盘焦点不被 outline: none 盖掉。 */
+:root :where(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
 @media print {
   @page {
     size: A4 portrait;
@@ -4241,7 +4310,8 @@ th.is-memo .map-tag {
     line-height: 1.5;
   }
 
-  .site-header,
+  .topbar,
+  .skip-link,
   #landingSection,
   #configSection,
   .result-actions,

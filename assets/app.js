@@ -165,7 +165,7 @@ const NAME_SUFFIXES = [
 ];
 
 // 与 version.txt 同步改；file:// 直开时页脚版本号的兜底文案。
-const APP_VERSION_FALLBACK = 'v2026.11.06-r2';
+const APP_VERSION_FALLBACK = 'v2026.11.06-r3';
 
 const RENDER_PAGE_SIZE = 100;
 

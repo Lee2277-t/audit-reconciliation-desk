@@ -10,12 +10,13 @@
   <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">跳到主要内容</a>
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">稽</div>
         <div>
-          <span class="brand-kicker">Reconciliation Desk</span>
+          <span class="brand-kicker">应收 · 应付 · 本机核对</span>
           <h1>双边对账核销工具</h1>
         </div>
       </div>
@@ -26,7 +27,7 @@
     </div>
   </header>
 
-  <main class="shell">
+  <main class="shell" id="mainContent" tabindex="-1">
     <div id="libError" class="fatal hidden" role="alert">
       Excel 解析库未加载。请确认 <code>vendor/xlsx.full.min.js</code> 与 <code>index.html</code> 在同一个文件夹内，然后重新打开本页。
     </div>
@@ -34,13 +35,13 @@
     <section id="landingSection">
       <div class="hero">
         <div class="hero-copy">
-          <span class="eyebrow">Bilateral Reconciliation</span>
-          <h2>把两边的账，<br><span>轧成一条净额。</span></h2>
-          <p>导入一张或两张底稿，也可以直接左右粘贴。自动识别应收/应付，合并单元格会继承企业名称，再归并同一企业、算出净应收或净应付。</p>
+          <span class="eyebrow">往来对账工作台</span>
+          <h2>应收、应付，<br><span>逐家核对净额。</span></h2>
+          <p>放进两边的账，按企业汇总净额。再逐家查看差异、核销提示，导出复核底稿。</p>
           <div class="hero-points">
             <span class="hero-point">方向自动识别</span>
             <span class="hero-point">支持合并单元格</span>
-            <span class="hero-point">本地解析，不上传</span>
+            <span class="hero-point">支持直接粘贴</span>
           </div>
         </div>
 
@@ -76,7 +77,7 @@
                   <b>应收账款</b>
                   <span>企业名称 + 金额</span>
                 </div>
-                <textarea id="manualRecv" spellcheck="false" placeholder="北京华信科技有限公司    128000&#10;上海恒远贸易有限公司    56800&#10;（可直接从 Excel 复制两列粘贴；名称留空则承上一行）"></textarea>
+                <textarea id="manualRecv" aria-label="粘贴应收账款：企业名称和金额" spellcheck="false" placeholder="北京华信科技有限公司    128000&#10;上海恒远贸易有限公司    56800&#10;（可直接从 Excel 复制两列粘贴；名称留空则承上一行）"></textarea>
                 <div class="manual-foot"><span id="manualRecvCount">0 行</span><span>右侧写应付，不要混在一起</span></div>
               </div>
               <div class="manual-side pay">
@@ -84,7 +85,7 @@
                   <b>应付账款</b>
                   <span>企业名称 + 金额</span>
                 </div>
-                <textarea id="manualPay" spellcheck="false" placeholder="北京华信科技有限公司    96000&#10;武汉长江器材有限公司    43000&#10;（金额可以带逗号、￥ 或括号负数）"></textarea>
+                <textarea id="manualPay" aria-label="粘贴应付账款：企业名称和金额" spellcheck="false" placeholder="北京华信科技有限公司    96000&#10;武汉长江器材有限公司    43000&#10;（金额可以带逗号、￥ 或括号负数）"></textarea>
                 <div class="manual-foot"><span id="manualPayCount">0 行</span><span>留空也可以，但会全部标为单边</span></div>
               </div>
             </div>
@@ -129,18 +130,18 @@
       <div class="intro-grid">
         <div class="intro-card">
           <span class="intro-no">01</span>
-          <h3>双侧都能进</h3>
-          <p>支持一个工作簿里的应收、应付两张表，也支持两个文件；还可以左右两栏直接粘贴。</p>
+          <h3>放进两边的账</h3>
+          <p>导入工作簿、多个文件，或直接粘贴。</p>
         </div>
         <div class="intro-card">
           <span class="intro-no">02</span>
-          <h3>方向自己判断</h3>
-          <p>没有方向列也能从“应收账款底稿”“应付账款底稿”等工作表名、标题或文件名识别应收应付。</p>
+          <h3>核对取数范围</h3>
+          <p>选好工作表，确认方向、列和金额单位。</p>
         </div>
         <div class="intro-card">
           <span class="intro-no">03</span>
-          <h3>合并单元格照读</h3>
-          <p>企业名称合并多行时，空白名称自动继承上一行；一家企业多笔金额会照常汇总并标记异常。</p>
+          <h3>复核后导出</h3>
+          <p>查看差异与提示，把结果留成底稿。</p>
         </div>
       </div>
 
@@ -162,7 +163,7 @@
       <div class="trust-card">
         <div class="trust-item">
           <b>数据不出这台电脑</b>
-          <p>页面只从本机加载，不请求任何外部网站，也不使用统计、在线字体或在线图标。表格和结果只在这台电脑的浏览器内存里，关掉页面就没有了。</p>
+          <p>网页版只需加载页面文件，不上传表格，也没有统计或在线字体。表格和结果只在这台设备的内存里，关掉页面就没有了，请先导出要保留的底稿。</p>
         </div>
         <div class="trust-item">
           <b>结果仅供参考</b>
@@ -380,7 +381,7 @@
             <circle cx="11" cy="11" r="7"></circle>
             <path d="m16.5 16.5 4 4"></path>
           </svg>
-          <input type="search" id="searchInput" placeholder="搜索企业名称" autocomplete="off">
+          <input type="search" id="searchInput" aria-label="搜索企业名称" placeholder="搜索企业名称" autocomplete="off">
         </div>
         <div class="filter-chips" id="filterChips" role="group" aria-label="结果筛选"></div>
         <div class="toolbar-right">
@@ -430,7 +431,7 @@
           <span id="visibleCount">—</span>
         </div>
         <div class="scroll-hint">左右滑动可查看全部列</div>
-        <div class="table-scroll table-scroll-main">
+        <div class="table-scroll table-scroll-main" role="region" aria-label="企业汇总，可左右滚动查看全部列" tabindex="0">
           <table class="recon-table">
             <thead>
               <tr>
