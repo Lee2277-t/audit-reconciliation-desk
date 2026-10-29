@@ -1,0 +1,9 @@
+node_modules/
+release/
+web-dist/
+desktop/app/
+sites/audit-recon/dist/
+sites/audit-recon/.git/
+tests/evidence/
+*.tar.gz
+.build-cache/
