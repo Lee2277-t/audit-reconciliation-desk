@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="在线或下载使用的应收应付对账工具。表格不上传，全部计算在本机完成。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>双边对账核销工具 · 应收应付净额</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">稽</div>
+        <div>
+          <span class="brand-kicker">Reconciliation Desk</span>
+          <h1>双边对账核销工具</h1>
+        </div>
+      </div>
+      <div class="local-badge">
+        <span class="pulse" aria-hidden="true"></span>
+        本地计算 · 数据不上传
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div id="libError" class="fatal hidden" role="alert">
+      Excel 解析库未加载。请确认 <code>vendor/xlsx.full.min.js</code> 与 <code>index.html</code> 在同一个文件夹内，然后重新打开本页。
+    </div>
+
+    <section id="landingSection">
+      <div class="hero">
+        <div class="hero-copy">
+          <span class="eyebrow">Bilateral Reconciliation</span>
+          <h2>把两边的账，<br><span>轧成一条净额。</span></h2>
+          <p>导入一张或两张底稿，也可以直接左右粘贴。自动识别应收/应付，合并单元格会继承企业名称，再归并同一企业、算出净应收或净应付。</p>
+          <div class="hero-points">
+            <span class="hero-point">方向自动识别</span>
+            <span class="hero-point">支持合并单元格</span>
+            <span class="hero-point">本地解析，不上传</span>
+          </div>
+        </div>
+
+        <div class="card import-card">
+          <div class="panel-kicker">Step 01 · 导入对账数据</div>
+          <p class="privacy-badge"><span class="privacy-dot" aria-hidden="true"></span>表格不上传 · 本机计算 · 关闭后不保留</p>
+          <div class="mode-tabs" role="tablist" aria-label="导入方式">
+            <button type="button" class="mode-tab active" data-mode="excel" role="tab" aria-selected="true">Excel 导入</button>
+            <button type="button" class="mode-tab" data-mode="manual" role="tab" aria-selected="false">手动粘贴</button>
+          </div>
+
+          <div id="excelPanel" class="mode-panel">
+            <div id="dropzone" class="dropzone" role="button" tabindex="0" aria-label="选择或拖入对账表格">
+              <div class="drop-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <path d="M14 2v6h6"></path>
+                  <path d="M12 18v-6"></path>
+                  <path d="m9 15 3-3 3 3"></path>
+                </svg>
+              </div>
+              <div class="dz-title">拖入 Excel 文件，或 <span>点击选择</span></div>
+              <div class="dz-hint">可一次选择两个文件；同一工作簿里的应收、应付两张表会自动一起导入</div>
+              <input id="fileInput" type="file" accept=".xlsx,.xls,.csv,.txt" multiple hidden>
+            </div>
+          </div>
+
+          <div id="manualPanel" class="mode-panel hidden">
+            <p class="manual-lead">从 Excel 分别复制两列（企业名称、金额），粘贴到左右两侧即可。首行表头、合计行会自动跳过；某行名称留空时，自动承上一行。</p>
+            <div class="manual-grid">
+              <div class="manual-side recv">
+                <div class="manual-head">
+                  <b>应收账款</b>
+                  <span>企业名称 + 金额</span>
+                </div>
+                <textarea id="manualRecv" spellcheck="false" placeholder="北京华信科技有限公司    128000&#10;上海恒远贸易有限公司    56800&#10;（可直接从 Excel 复制两列粘贴；名称留空则承上一行）"></textarea>
+                <div class="manual-foot"><span id="manualRecvCount">0 行</span><span>右侧写应付，不要混在一起</span></div>
+              </div>
+              <div class="manual-side pay">
+                <div class="manual-head">
+                  <b>应付账款</b>
+                  <span>企业名称 + 金额</span>
+                </div>
+                <textarea id="manualPay" spellcheck="false" placeholder="北京华信科技有限公司    96000&#10;武汉长江器材有限公司    43000&#10;（金额可以带逗号、￥ 或括号负数）"></textarea>
+                <div class="manual-foot"><span id="manualPayCount">0 行</span><span>留空也可以，但会全部标为单边</span></div>
+              </div>
+            </div>
+            <div class="manual-actions">
+              <label class="manual-unit" for="manualUnit">
+                金额单位
+                <select id="manualUnit">
+                  <option value="1">元</option>
+                  <option value="1000">千元</option>
+                  <option value="10000">万元</option>
+                </select>
+              </label>
+              <button type="button" class="btn btn-primary" id="manualRunBtn">开始对账</button>
+            </div>
+            <div id="manualError" class="notice error hidden" role="alert"></div>
+          </div>
+
+          <div class="import-foot">
+            <button type="button" class="link-btn" id="sampleRunBtn">先跑一遍内置示例（20 秒）</button>
+            <span class="dot" aria-hidden="true"></span>
+            <button type="button" class="link-btn" id="sampleBtn">下载示例表格</button>
+            <span class="dot" aria-hidden="true"></span>
+            <button type="button" class="link-btn" id="helpBtn" aria-expanded="false">需要准备哪些列？</button>
+          </div>
+          <div id="helpPanel" class="help-panel hidden">
+            <b>表格可以这样准备</b>
+            <ol>
+              <li><b>方向可以没有：</b>工作表名或文件名含“应收账款 / 应付账款”就能识别；一个工作簿里放两张表最省事。</li>
+              <li><b>企业名称：</b>支持合并单元格。企业名只写一次、下面几行留空，工具会自动继承上一行。</li>
+              <li><b>金额：</b>数字、文本金额、千分位、括号负数都能识别；导入后可选择元、千元或万元。负数会取绝对值并自动改记到对立方向（应收负数记应付、应付负数记应收）。<b>红字金额</b>（数字本身是正数、只是字体标红）也按负数处理，明细里会标「红字转负」。</li>
+              <li><b>方向列：</b>如果有“应收/应付”列也可以直接选；没有就按表名或整表方向判断。</li>
+              <li><b>整本工作簿：</b>一次导入多个工作表时，默认一张都不勾；要核对哪几张就自己勾。封面、目录、试算表也不会自动参与，可用「全选」按钮一次性勾上，再取消不要的。</li>
+              <li><b>两行表头也认得：</b>像“本期未审｜期初金额 期末金额”这种上下两行的表头，工具会合并成完整列名再判断。</li>
+              <li><b>直接复制到 Excel：</b>展开任一企业的明细，上方有应收、应付两个复制区，点“复制”后到 Excel 里 Ctrl+V，会自动分成 5 列（企业名称 / 金额 / 摘要 / 数据源 / 原表行）。</li>
+            </ol>
+            <p>表头不必在第一行；每一列也可以手动重新指定。也可以切换到“手动粘贴”，左右两侧各粘两列。</p>
+          </div>
+          <div id="fileError" class="notice error hidden" role="alert"></div>
+        </div>
+      </div>
+
+      <div class="intro-grid">
+        <div class="intro-card">
+          <span class="intro-no">01</span>
+          <h3>双侧都能进</h3>
+          <p>支持一个工作簿里的应收、应付两张表，也支持两个文件；还可以左右两栏直接粘贴。</p>
+        </div>
+        <div class="intro-card">
+          <span class="intro-no">02</span>
+          <h3>方向自己判断</h3>
+          <p>没有方向列也能从“应收账款底稿”“应付账款底稿”等工作表名、标题或文件名识别应收应付。</p>
+        </div>
+        <div class="intro-card">
+          <span class="intro-no">03</span>
+          <h3>合并单元格照读</h3>
+          <p>企业名称合并多行时，空白名称自动继承上一行；一家企业多笔金额会照常汇总并标记异常。</p>
+        </div>
+      </div>
+
+      <div class="guide-card">
+        <details class="guide-details" id="guideBlock">
+          <summary>第一次用？先看这三步</summary>
+          <ol class="guide-steps">
+            <li><b>放进数据。</b>把应收、应付两张表（或一个工作簿里的两张表）拖进上面的虚线框；不想找文件就点「先跑一遍内置示例」，企业名都是编的，20 秒看完整流程。</li>
+            <li><b>核对一下。</b>导入后先看每张表的图片：框住的那块就是会被计算的行；方向、单位不对就手动改；认列没把握时，看有没有「是猜的」的橙色提示。</li>
+            <li><b>对账导出。</b>点「开始对账」，看结果页的净额和标记；重点复核的企业逐个点开，明细上方有「复制」可以直接贴进 Excel；最后用「导出工作簿」出底稿。</li>
+          </ol>
+          <p class="guide-faq"><b>怎么打开？</b>网页版打开网址就能用，手机也可以。软件版安装后从桌面或应用列表打开。使用免安装压缩包时，解压后双击 <code>index.html</code>；Windows 也可以双击 <code>打开对账工具.bat</code>。若公司电脑限制安装，请直接使用网页版。</p>
+          <p class="guide-faq"><b>能用什么浏览器？</b>新版 Edge、Chrome、Firefox、Safari 都可以，IE 用不了。拿不准就点下面的「检查运行环境」，会逐项告诉你缺什么、该换什么。</p>
+          <p class="guide-faq"><b>数据会传出去吗？</b>表格和对账结果不会上传。网页版打开时需要加载页面文件，之后的取数和计算都在你的设备上完成；软件版不用联网也能对账。关闭后不会保留底稿，要留档请先导出。</p>
+          <p class="guide-faq"><b>结果准不准？</b>工具只做归并和提示，<b>最终以人工复核为准</b>；导出工作簿的「对账说明」页写清了每一条口径。</p>
+        </details>
+      </div>
+
+      <div class="trust-card">
+        <div class="trust-item">
+          <b>数据不出这台电脑</b>
+          <p>页面只从本机加载，不请求任何外部网站，也不使用统计、在线字体或在线图标。表格和结果只在这台电脑的浏览器内存里，关掉页面就没有了。</p>
+        </div>
+        <div class="trust-item">
+          <b>结果仅供参考</b>
+          <p>工具只做归并、净额和核销提示，<b>不能替代审计程序，也不作为审计证据；</b>最终金额和结论以人工复核、原始凭证为准。</p>
+        </div>
+        <div class="trust-item">
+          <b>这台电脑能不能跑？</b>
+          <p>不确定浏览器环境是否正常，点一下做个本机检查（只读本机状态，不联网）。</p>
+          <button type="button" class="btn btn-secondary self-check-btn" id="selfCheckBtn">检查运行环境</button>
+          <ul class="self-check-out hidden" id="selfCheckOut"></ul>
+          <button type="button" class="btn btn-secondary self-check-btn" id="diagBtn">导出诊断包</button>
+          <p class="diag-note">遇到说不清的问题，点这里下载一份环境说明发给协助的人；<b>不含金额、企业名称和单元格内容</b></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="configSection" class="hidden">
+      <div class="section-head">
+        <span class="panel-kicker">Step 02 · 确认数据</span>
+        <h2>核对数据源和列。</h2>
+        <p>方向、表头和列都已自动认出，一般不用管。工作表多可以搜；认错了就在整张表的图片里框住那块数据，或者单独框住某一列。</p>
+      </div>
+
+      <div class="card config-card">
+        <div class="config-top">
+          <div class="file-meta">
+            <div class="file-ext" id="fileExt">XLSX</div>
+            <div class="file-copy">
+              <div class="file-name" id="cfgFileName">—</div>
+              <div class="file-sub" id="cfgFileMeta">—</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="changeFileBtn">添加文件</button>
+        </div>
+
+        <div class="source-panel">
+          <div class="source-panel-head">
+            <div>
+              <b>数据源与方向</b>
+              <span>导入后默认一张都不勾；这里会标出哪些表认出了企业名和金额，需要核对哪几张就勾哪几张</span>
+            </div>
+            <div class="source-tools">
+              <label class="auto-detect" title="关掉后，新导入的表不再自动猜列，需要自己在整张表的图片里框出企业名和金额列">
+                <input type="checkbox" id="autoDetectCols" checked>
+                自动认列
+              </label>
+              <span class="source-count" id="sourceCount">—</span>
+              <button type="button" class="btn btn-sm source-tool" id="sourceSelectAll">全选</button>
+              <button type="button" class="btn btn-sm source-tool" id="sourceSelectNone">全不选</button>
+            </div>
+          </div>
+          <div class="source-filter">
+            <input type="search" id="sourceSearch" class="source-search" placeholder="工作表太多？输入关键字筛选，例如 应收 / 应付 / 明细" aria-label="筛选工作表" autocomplete="off">
+            <span class="source-filter-note" id="sourceFilterNote"></span>
+          </div>
+          <div class="source-list" id="sourceList"></div>
+        </div>
+
+        <div class="mapping-grid">
+          <div class="field">
+            <label for="sheetSelect">当前编辑的工作表</label>
+            <select id="sheetSelect"></select>
+          </div>
+          <div class="field">
+            <label for="headerRowSelect">表头所在行</label>
+            <select id="headerRowSelect"></select>
+          </div>
+          <div class="field">
+            <label for="unitSelect">金额单位</label>
+            <select id="unitSelect">
+              <option value="1">元</option>
+              <option value="1000">千元</option>
+              <option value="10000">万元</option>
+            </select>
+            <div class="field-note">原表以千元或万元记账时再调整</div>
+          </div>
+        </div>
+
+        <div class="column-status" id="columnStatus"></div>
+
+        <div class="config-row">
+          <button type="button" class="btn btn-secondary btn-sm" id="saveConfigBtn">存成列设置</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="loadConfigBtn">载入列设置</button>
+          <input type="file" id="configInput" accept="application/json,.json" class="hidden-file" aria-label="载入列设置文件">
+          <span class="config-note" id="configNote">下个月拿到同一张表、列位置变了？先把现在认好的列存成一个文件，下次导入自动套上。里面只存列的位置，没有金额和企业名。</span>
+        </div>
+
+        <details class="manual-cols" id="manualCols">
+          <summary>还是不对？用下拉一行行改</summary>
+          <div class="mapping-grid mapping-grid-cols">
+            <div class="field">
+              <label for="companyCol">企业名称列 <span class="required">必需</span></label>
+              <select id="companyCol"></select>
+            </div>
+            <div class="field">
+              <label for="amountCol">金额列 <span class="required">必需</span></label>
+              <select id="amountCol"></select>
+            </div>
+            <div class="field">
+              <label for="directionCol">应收/应付方向列 <span class="optional">可选</span></label>
+              <select id="directionCol"></select>
+              <div class="field-note">没有方向列也可以：按工作表名、标题或文件名识别</div>
+            </div>
+            <div class="field">
+              <label for="memoCol">摘要/备注列 <span class="optional">选填</span></label>
+              <select id="memoCol"></select>
+            </div>
+            <div class="field">
+              <label for="ageCol">账龄列 <span class="optional">选填</span></label>
+              <select id="ageCol"></select>
+              <div class="field-note">认出来会按结果页选的档位分开统计；不需要就选「不用账龄」</div>
+            </div>
+            <div class="field">
+              <label for="currencyCol">币种列 <span class="optional">选填</span></label>
+              <select id="currencyCol"></select>
+              <div class="field-note">一张表里有多个币种时选它；不同币种分开算、不做汇率换算</div>
+            </div>
+            <div class="field">
+              <label for="entityCol">主体列 <span class="optional">选填</span></label>
+              <select id="entityCol"></select>
+              <div class="field-note">合并报表里有多家主体时选它；同一家企业按主体分开算，不合并</div>
+            </div>
+          </div>
+        </details>
+
+        <div class="sheet-map-block">
+          <div class="preview-head">
+            <div class="preview-title">整张表的图片 <span class="preview-hint">按住鼠标框住真正的那块数据，松开就能只用这一块</span></div>
+            <div class="preview-hint" id="sheetMapMeta">—</div>
+          </div>
+          <div class="map-bar hidden" id="mapBar">
+            <span class="pick-text" id="mapText">已框选</span>
+            <span class="pick-actions">
+              <button type="button" class="btn btn-sm btn-primary map-act" data-map="both">就用这一块</button>
+              <button type="button" class="btn btn-sm map-act" data-map="rows">只取这些行</button>
+              <button type="button" class="btn btn-sm map-act" data-map="whole">整张都用</button>
+              <button type="button" class="btn btn-sm btn-ghost map-act" data-map="clear">不用了</button>
+            </span>
+          </div>
+          <div class="map-scroll" id="mapScroll">
+            <canvas id="sheetMap" class="sheet-map" aria-label="工作表概览图，可在图上拖动框选数据区域"></canvas>
+          </div>
+          <div class="map-legend" id="mapNote">
+            <span><i class="swatch is-name"></i>文字（企业名／摘要）</span>
+            <span><i class="swatch is-num"></i>数字</span>
+            <span><i class="swatch is-dir"></i>应收／应付</span>
+            <span><i class="swatch is-head"></i>表头那一行</span>
+            <span><i class="swatch is-out"></i>没算进来的行</span>
+          </div>
+        </div>
+
+        <div class="preview-block">
+          <div class="preview-head">
+            <div class="preview-title">数据预览 <span class="preview-hint">在下面按住鼠标拖一拖，框住要指定的列</span></div>
+            <div class="preview-hint">浅绿列 = 已指定 · 框选后可一键改</div>
+          </div>
+          <div class="pick-bar hidden" id="pickBar">
+            <span class="pick-text" id="pickText">已框选</span>
+            <span class="pick-actions">
+              <button type="button" class="btn btn-sm pick-role" data-role="company">当企业名称</button>
+              <button type="button" class="btn btn-sm pick-role" data-role="amount">当金额</button>
+              <button type="button" class="btn btn-sm pick-role" data-role="direction">当收付方向</button>
+              <button type="button" class="btn btn-sm pick-role" data-role="memo">当摘要</button>
+              <button type="button" class="btn btn-sm btn-ghost pick-clear" id="pickClear">不用了</button>
+            </span>
+          </div>
+          <div class="table-scroll">
+            <table class="preview" id="previewTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="scroll-hint">左右滑动可查看全部列；拖动框选时也可以先滑到要看的位置</div>
+        </div>
+
+        <div class="config-actions">
+          <button type="button" class="btn btn-primary" id="runBtn">
+            <span id="runBtnLabel">开始对账</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="m13 6 6 6-6 6"></path>
+            </svg>
+          </button>
+          <span class="action-note">每张工作表的列对应关系会分别保存；不会修改原文件。</span>
+        </div>
+        <div id="runError" class="notice error hidden" role="alert"></div>
+      </div>
+    </section>
+
+    <section id="resultSection" class="hidden">
+      <div class="section-head result-head">
+        <div>
+          <span class="panel-kicker">Step 03 · 对账结果</span>
+          <h2 id="resultTitle">每家企业的应收应付净额</h2>
+          <p class="result-meta" id="resultMeta">—</p>
+        </div>
+        <div class="result-actions">
+          <button class="btn btn-secondary" id="reimportBtn" type="button">重新导入</button>
+          <button class="btn btn-secondary" id="printBtn" type="button">打印／存 PDF</button>
+          <button class="btn btn-secondary" id="exportBlocksBtn" type="button" title="每个企业单独一张工作表，方便分别发函或归档">分企业导出</button>
+          <button class="btn btn-primary" id="exportBtn" type="button">导出 Excel</button>
+        </div>
+      </div>
+
+      <div class="summary-grid" id="summaryGrid"></div>
+      <div class="dim-summary hidden" id="dimSummary"></div>
+      <div class="totals-strip" id="totalsStrip"></div>
+      <div class="fingerprint-line" id="fingerprintLine"></div>
+      <div id="dataCheck"></div>
+      <div id="similarBox" class="hidden"></div>
+
+      <div class="result-toolbar">
+        <div class="search-field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m16.5 16.5 4 4"></path>
+          </svg>
+          <input type="search" id="searchInput" placeholder="搜索企业名称" autocomplete="off">
+        </div>
+        <div class="filter-chips" id="filterChips" role="group" aria-label="结果筛选"></div>
+        <div class="toolbar-right">
+          <button class="btn btn-secondary btn-sm undo-btn" id="undoBtn" type="button" disabled title="还没有可以撤销的操作">撤销上一步</button>
+          <label class="tol-field" for="pairTolerance" title="金额相差在容差以内视为可配对；填 0 表示只配金额完全相同的">
+            核销容差
+            <input type="number" id="pairTolerance" class="tol-input" min="0" max="1000" step="0.01" value="0.01" inputmode="decimal">
+            元
+          </label>
+          <label class="tol-field tol-percent-field" for="pairPercent" title="差额不到两边金额较大一方的这个比例，也算近似一致；填 0 表示不用比例。两种容差满足一个就算。">
+            或差比例
+            <input type="number" id="pairPercent" class="tol-input tol-percent" min="0" max="10" step="0.01" value="0" inputmode="decimal">
+            %
+          </label>
+          <label class="age-field hidden" id="ageBaseField" for="ageBaseDate" title="原表用日期写账龄时，按这一天往前算；一般填资产负债表日">
+            账龄算到
+            <input type="date" id="ageBaseDate" class="age-input">
+          </label>
+          <label class="age-field hidden" id="ageBandField" for="ageBandPreset" title="账龄分档方式；只影响分档展示，不改金额">
+            账龄档位
+            <select id="ageBandPreset" class="age-input">
+              <option value="year">按年四档</option>
+              <option value="half">半年起五档</option>
+            </select>
+          </label>
+          <label class="sort-field" for="sortSelect">
+            排序
+            <select id="sortSelect">
+              <option value="netAbsDesc">净额影响大 → 小</option>
+              <option value="netDesc">净应收 → 净应付</option>
+              <option value="countDesc">记录笔数多 → 少</option>
+              <option value="name">企业名称</option>
+            </select>
+          </label>
+          <label class="export-check">
+            <input type="checkbox" id="exportFiltered">
+            仅导出筛选结果
+          </label>
+        </div>
+      </div>
+
+      <div class="facet-bar hidden" id="facetBar"></div>
+
+      <div class="table-card">
+        <div class="table-top">
+          <span>企业汇总</span>
+          <span id="visibleCount">—</span>
+        </div>
+        <div class="scroll-hint">左右滑动可查看全部列</div>
+        <div class="table-scroll table-scroll-main">
+          <table class="recon-table">
+            <thead>
+              <tr>
+                <th style="min-width:210px">企业名称</th>
+                <th style="min-width:150px">数据源</th>
+                <th class="num">记录</th>
+                <th class="num">应收合计</th>
+                <th class="num">应付合计</th>
+                <th class="num">净额（大减小）</th>
+                <th>标记</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <p class="netting-note" id="nettingNote">上面每一行的「净额」是把这家企业的应收合计和应付合计大减小算出来的，只用来排差异和准备函证；<b>它不代表这两笔可以抵销</b>，账上要不要抵销得看合同里有没有抵销权、报表怎么列报。明细里的「自动核销」也只是提示，点「采纳」不会改动任何金额。</p>
+
+      <div class="signoff-card">
+        <div class="signoff-head">
+          <b>底稿信息（会一起导出和打印）</b>
+          <span>填了就行，不填也能用；导出 Excel 的「对账说明」第一屏就是这几项。</span>
+        </div>
+        <div class="signoff-grid">
+          <div class="field">
+            <label for="signoffIndex">索引号</label>
+            <input type="text" id="signoffIndex" placeholder="例如 B-300" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="signoffPrepared">编制人</label>
+            <input type="text" id="signoffPrepared" placeholder="姓名" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="signoffReviewed">复核人</label>
+            <input type="text" id="signoffReviewed" placeholder="姓名" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="signoffDate">复核日期</label>
+            <input type="date" id="signoffDate">
+          </div>
+        </div>
+        <div class="field signoff-conclusion">
+          <label for="signoffConclusion">复核结论</label>
+          <input type="text" id="signoffConclusion" placeholder="例如：已函证确认，差异为在途款" autocomplete="off">
+        </div>
+        <div class="field signoff-printnote">
+          <label for="printNote">打印时附在抬头的一句话（可不填）</label>
+          <input type="text" id="printNote" placeholder="例如：本表为往来对账归并底稿，差异说明见各企业行" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="snapshot-card">
+        <div class="signoff-head">
+          <b>底稿快照（可选）</b>
+          <span>把这次结果存成一个小文件；下次改完再拿它比一比，哪些企业、哪些金额、哪些说明变了会列出来。快照文件含企业名称和金额，请按底稿保管。</span>
+        </div>
+        <div class="snapshot-actions">
+          <button class="btn btn-secondary" id="saveSnapshotBtn" type="button">保存本次快照</button>
+          <button class="btn btn-secondary" id="compareSnapshotBtn" type="button">和快照比对</button>
+          <input type="file" id="snapshotInput" accept=".json,application/json" hidden>
+          <span class="snapshot-hint">两次都用同一版工具保存，比较结果最可靠；比对只列变化，不改任何金额。</span>
+        </div>
+        <div id="snapshotDiff" class="snapshot-diff hidden"></div>
+      </div>
+
+      <div class="export-card" id="exportCard">
+        <div class="signoff-head">
+          <b>导出文件校验码（可选）</b>
+          <span>每次导出后会按文件本身算一串校验码。把它记在底稿上，以后选回那个文件，就能核对是不是同一份；另存、编辑或重新导出都会变。</span>
+        </div>
+        <div id="exportReceiptBody" class="export-receipt-body"></div>
+        <div class="export-actions">
+          <button class="btn btn-secondary" id="verifyExportBtn" type="button">核对一个导出文件</button>
+          <input type="file" id="verifyExportInput" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+          <input type="text" id="exportExpectInput" class="er-expect" placeholder="粘贴底稿上记的校验码（可不填）" autocomplete="off" spellcheck="false" aria-label="粘贴底稿上记的校验码">
+        </div>
+        <div id="exportVerifyOut" class="export-verify-out hidden"></div>
+      </div>
+
+      <details class="legend">
+        <summary>计算口径与标记说明</summary>
+        <div class="legend-grid">
+          <div class="legend-item"><b>重复企业</b>：归一后同一企业出现 2 笔及以上记录，已合并计算净额。</div>
+          <div class="legend-item"><b>同额对冲</b>：同一企业内应收和应付出现完全相同的金额。</div>
+          <div class="legend-item"><b>同向重复</b>：同一方向、同一金额出现两次及以上，可能存在重复入账。</div>
+          <div class="legend-item"><b>单边记录</b>：该企业只有应收或只有应付，没有另一方记录。</div>
+          <div class="legend-item"><b>名称不一</b>：归并为同一企业，但原表写法不同，建议核对是否同一主体。</div>
+          <div class="legend-item"><b>重点复核</b>：命中“同向重复”“名称不一”或“负数重分类”的企业。</div>
+          <div class="legend-item"><b>净额口径</b>：净额 = 应收合计 − 应付合计；金额按分计算，展示保留两位小数。净额只是对账归并口径，<b>不代表会计上的抵销</b>，能否抵销要看是否有法定抵销权和报表列报要求。</div>
+          <div class="legend-item"><b>取数核对</b>：把金额列每一格重新扫一遍，要求「原表金额 = 已算进去 + 跳过的 + 范围外的」，差额必须是 0；不为 0 说明有金额没被算进来，展开能看到是哪几行。</div>
+          <div class="legend-item"><b>已人工并归</b>：名称写法不同、由你在「名称相近」里点「是同一家」合并的企业，原始写法保留在明细里，可以一键撤销。</div>
+          <div class="legend-item"><b>同单据号</b>：摘要里出现同样的发票号／单据号／凭证号，两侧对上号的会单独列出；金额不一致的就是只核销了一部分，请按凭证补差。</div>
+          <div class="legend-item"><b>摘要线索</b>：摘要里写了同一个合同、项目、工程、部门、订单或批次，两侧会对出来放在一起方便对照；这只是文字上的线索，<b>不代表是同一笔业务</b>。</div>
+          <div class="legend-item"><b>负数重分类</b>：负数金额取绝对值后自动改记到对立方向（应收负数记应付、应付负数记应收），请结合凭证复核。</div>
+          <div class="legend-item"><b>红字转负</b>：金额本身是正数、原表用红色字体表示负数，工具按负数处理并重分类；如果红字只是标注，请改回普通颜色再导入。</div>
+          <div class="legend-item"><b>可自动核销</b>：同一企业内找到金额相符的应收/应付组合，先一对一、再「多笔对一笔」凑数；展开明细可看具体配对，净额仍按企业合计大减小。</div>
+          <div class="legend-item"><b>差一点就能配上</b>：自动配对没吃掉的记录里，两边金额只差一点的一对（差额不到当前容差的两倍，或者不到较大一方的 5%）。展开会在配对区写上「把核销容差改成多少就能配上」，这只是给个参照，<b>不改变任何金额</b>。</div>
+          <div class="legend-item"><b>账龄分布</b>：原表写了账龄档位（如「1年以内」「1-2年」）、逾期天数或发生日期的，自动归到「1年以内／1-2年／2-3年／3年以上」四档；按日期推算的以「账龄算到」那天为准，一般填资产负债表日。原表没写的那笔单列示，不会硬塞进某一档；整张表没有账龄列时不提账龄。账龄只是把挂账时间分开看，<b>不改变任何金额</b>。</div>
+        </div>
+      </details>
+
+      <p class="result-disclaimer">结果仅供参考：工具只做归并与提示，<b>不能替代审计程序，也不作为审计证据；</b>净额是按企业大减小算出来的对账口径，不等于会计上可以抵销，最终金额与结论请以人工复核和原始凭证为准。</p>
+      <p class="print-stamp" id="printStamp"></p>
+    </section>
+  </main>
+
+  <section hidden class="distribution-card" aria-labelledby="distributionTitle">
+    <div class="distribution-heading">
+      <div><span class="eyebrow">在你习惯的设备上使用</span><h2 id="distributionTitle">网页即开即用，也能下载到电脑</h2></div>
+      <p>两种方式使用同一套对账口径。软件版装好后可以断网使用。</p>
+    </div>
+    <div class="distribution-grid">
+      <!-- DESKTOP_DOWNLOADS -->
+    </div>
+    <p class="distribution-note">手机可直接使用本页；大表核对建议使用电脑。旧系统如果无法安装，请先试试新版浏览器。</p>
+  </section>
+
+  <footer class="site-footer">
+    <span>双边对账核销工具 <b id="appVersion" class="app-version">__APP_VERSION__</b></span>
+    <span>表格不上传，全部计算在本机完成；关闭后不保留底稿</span>
+    <span>建议使用新版 Edge、Chrome、Firefox 或 Safari（IE 不支持）</span>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

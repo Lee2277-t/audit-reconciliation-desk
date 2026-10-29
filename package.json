@@ -1,0 +1,44 @@
+{
+  "name": "audit-reconciliation-desk",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.25.0",
+  "description": "应收应付双边对账工具，数据在本机处理",
+  "author": "Audit Reconciliation Desk",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "test": "node tests/run-all.cjs",
+    "build:web": "node scripts/build-web.cjs",
+    "prepare:desktop": "node scripts/prepare-desktop.cjs",
+    "start": "node scripts/prepare-desktop.cjs && electron .",
+    "dist": "node scripts/prepare-desktop.cjs && electron-builder --publish never",
+    "dist:win": "node scripts/prepare-desktop.cjs && electron-builder --win --x64 --publish never",
+    "dist:mac": "node scripts/prepare-desktop.cjs && electron-builder --mac --x64 --arm64 --publish never",
+    "dist:linux": "node scripts/prepare-desktop.cjs && electron-builder --linux --x64 --arm64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "local.audit.reconciliation.desk",
+    "productName": "审计双边对账工具",
+    "executableName": "audit-recon",
+    "asar": true,
+    "directories": { "output": "release" },
+    "files": ["desktop/main.cjs", "desktop/app/**/*", "package.json"],
+    "artifactName": "audit-recon-${version}-${os}-${arch}.${ext}",
+    "win": { "target": ["nsis", "portable"] },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "审计双边对账工具",
+      "artifactName": "audit-recon-${version}-windows-${arch}-setup.${ext}"
+    },
+    "portable": { "artifactName": "audit-recon-${version}-windows-${arch}-portable.${ext}" },
+    "mac": { "category": "public.app-category.finance", "target": ["dmg", "zip"] },
+    "linux": { "category": "Office", "target": ["AppImage", "deb"], "maintainer": "Audit Reconciliation Desk" }
+  }
+}

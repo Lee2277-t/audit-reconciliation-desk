@@ -1,0 +1,66 @@
+name: Build desktop packages
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, target: win, arch: x64 }
+          - { os: windows-latest, target: win, arch: arm64 }
+          - { os: macos-latest, target: mac, arch: x64 }
+          - { os: macos-latest, target: mac, arch: arm64 }
+          - { os: ubuntu-22.04, target: linux, arch: x64 }
+          - { os: ubuntu-24.04-arm, target: linux, arch: arm64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.25.0'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm prepare:desktop
+      - run: pnpm exec electron-builder --${{ matrix.target }} --${{ matrix.arch }} --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audit-recon-${{ matrix.target }}-${{ matrix.arch }}
+          path: |
+            release/*.exe
+            release/*.dmg
+            release/*.zip
+            release/*.AppImage
+            release/*.deb
+          if-no-files-found: error
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: audit-recon-*
+          path: release-assets
+          merge-multiple: true
+      - name: Publish tested build artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if ! gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release create "v$VERSION" --target "$GITHUB_SHA" --title "审计双边对账工具 $VERSION" --notes-file .github/release-notes.md --prerelease
+          fi
+          gh release upload "v$VERSION" release-assets/* --clobber

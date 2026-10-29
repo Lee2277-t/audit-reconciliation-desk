@@ -1,0 +1,117 @@
+{
+  "age": null,
+  "ageByGroup": [],
+  "combined": {
+    "directionFallback": 0,
+    "docHintGroups": 0,
+    "evenGroups": 0,
+    "grossPayCents": 0,
+    "grossRecvCents": 0,
+    "groups": 0,
+    "inherited": 0,
+    "keyGroups": 0,
+    "memoKeyGroups": 0,
+    "mergeGroups": 0,
+    "netPayCents": 0,
+    "netRecvCents": 0,
+    "outOfRange": 0,
+    "pairCount": 0,
+    "pairGroups": 0,
+    "pairLimitedGroups": 0,
+    "reclass": 0,
+    "records": 0,
+    "red": 0,
+    "selectedSheets": [],
+    "skipReasons": {},
+    "skipped": 0,
+    "unknownDirections": []
+  },
+  "control": {
+    "combined": {
+      "diffCells": 0,
+      "diffCents": 0,
+      "includedCells": 0,
+      "includedCents": 0,
+      "missingRecordRows": [],
+      "ok": true,
+      "outsideCells": 0,
+      "outsideCents": 0,
+      "rawCells": 0,
+      "rawCents": 0,
+      "skippedCells": 0,
+      "skippedCents": 0,
+      "unmatchedCells": 0,
+      "unmatchedCents": 0,
+      "unmatchedRows": []
+    },
+    "perSource": []
+  },
+  "docHints": [],
+  "export": null,
+  "fingerprint": "7eaf3e43416bb261bb8f89be4b72cae4af90005f7b26a4ad61861d751fa8da9d",
+  "fixture": "generic-sheet-no-direction.xlsx",
+  "memoKeys": [],
+  "mergeProbe": null,
+  "pairing": {
+    "default": {
+      "details": [],
+      "duplicateRows": 0,
+      "limitedGroups": 0,
+      "maxDiffCents": 0,
+      "pairCount": 0,
+      "pairGroups": 0,
+      "pairedPayCents": 0,
+      "pairedRecvCents": 0,
+      "skippedGroups": 0
+    },
+    "percent": null,
+    "toleranceCents": 1,
+    "zero": {
+      "details": [],
+      "duplicateRows": 0,
+      "limitedGroups": 0,
+      "maxDiffCents": 0,
+      "pairCount": 0,
+      "pairGroups": 0,
+      "pairedPayCents": 0,
+      "pairedRecvCents": 0,
+      "skippedGroups": 0
+    }
+  },
+  "profileProbe": null,
+  "similar": {
+    "byTier": {},
+    "count": 0,
+    "items": []
+  },
+  "sources": [
+    {
+      "age": null,
+      "columns": {
+        "amount": "金额",
+        "company": "企业名称",
+        "direction": "-",
+        "memo": "-"
+      },
+      "confidence": [],
+      "direction": {
+        "dir": "",
+        "label": "未识别方向",
+        "via": "none"
+      },
+      "groupHeaderRow": -1,
+      "guessedFields": [],
+      "headerRow": 0,
+      "included": false,
+      "outside": 0,
+      "profileUsed": false,
+      "range": "2-3",
+      "rangeNote": "",
+      "sheet": "Sheet1",
+      "shortLabel": "Sheet1",
+      "stats": null,
+      "unit": 1,
+      "usable": false
+    }
+  ]
+}

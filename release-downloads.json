@@ -1,0 +1,5 @@
+[
+  { "name": "Windows", "support": "Windows 10 / 11，支持常见电脑与 ARM 电脑。", "url": null },
+  { "name": "macOS", "support": "macOS 13 及以上，支持 Intel 与 Apple 芯片。", "url": null },
+  { "name": "Linux", "support": "提供 AppImage 和 deb，面向仍受支持的常见发行版。", "url": null }
+]
