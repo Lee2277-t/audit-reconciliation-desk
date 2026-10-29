@@ -23,7 +23,7 @@ pnpm dist:mac
 pnpm dist:linux
 ```
 
-安装包位于 `release/`。应在对应系统打包；macOS 的签名和公证必须在 macOS 环境完成。不要把 Windows 成功构建视为其他系统已经验证。
+安装包位于 `release/`。原有离线 ZIP 用 `python scripts/pack-offline.py` 生成并自动核对文件一致性，也可额外传入输出路径。应在对应系统打包；macOS 的签名和公证必须在 macOS 环境完成。不要把 Windows 成功构建视为其他系统已经验证。
 
 | 系统 | 构建目标 | 兼容范围 |
 |---|---|---|
@@ -44,7 +44,7 @@ pnpm dist:linux
 
 ## Sites
 
-本站身份保存在 `sites/audit-recon/.openai/hosting.json`。Sites 仓库只同步经过白名单构建的 `dist/` 与托管配置。首次站点默认为仅本人可访问；公开给其他人使用还需改变站点访问范围。不要将桌面安装包塞进静态网页资源，使用 GitHub Releases 承载。
+本站身份保存在 `sites/audit-recon/.openai/hosting.json`。Sites 仓库只同步经过白名单构建的 `dist/` 与托管配置。本站已按用户明确授权改为公开访问，持有链接的人可以使用；导入的表格仍只留在访问者设备内。不要将桌面安装包塞进静态网页资源，使用 GitHub Releases 承载。
 
 ## 验收
 

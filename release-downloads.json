@@ -1,5 +1,54 @@
 [
-  { "name": "Windows", "support": "Windows 10 / 11，支持常见电脑与 ARM 电脑。", "url": null },
-  { "name": "macOS", "support": "macOS 13 及以上，支持 Intel 与 Apple 芯片。", "url": null },
-  { "name": "Linux", "support": "提供 AppImage 和 deb，面向仍受支持的常见发行版。", "url": null }
+  {
+    "name": "Windows",
+    "support": "Windows 10 / 11。一般电脑选 x64，ARM 电脑选 ARM64。",
+    "label": "一般电脑 · 安装版",
+    "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-windows-x64-setup.exe",
+    "alternatives": [
+      {
+        "label": "一般电脑 · 免安装版",
+        "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-windows-x64-portable.exe"
+      },
+      {
+        "label": "ARM64 · 安装版",
+        "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-windows-arm64-setup.exe"
+      },
+      {
+        "label": "ARM64 · 免安装版",
+        "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-windows-arm64-portable.exe"
+      }
+    ]
+  },
+  {
+    "name": "macOS",
+    "support": "macOS 13 及以上。按电脑芯片选择。",
+    "label": "Apple 芯片",
+    "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-mac-arm64.dmg",
+    "alternatives": [
+      {
+        "label": "Intel 芯片",
+        "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-mac-x64.dmg"
+      }
+    ]
+  },
+  {
+    "name": "Linux",
+    "support": "一般电脑选 x64，ARM 设备选 ARM64。",
+    "label": "x64 · AppImage",
+    "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-linux-x86_64.AppImage",
+    "alternatives": [
+      {
+        "label": "x64 · deb",
+        "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-linux-amd64.deb"
+      },
+      {
+        "label": "ARM64 · AppImage",
+        "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-linux-arm64.AppImage"
+      },
+      {
+        "label": "ARM64 · deb",
+        "url": "https://github.com/Lee2277-t/audit-reconciliation-desk/releases/download/v1.0.0/audit-recon-1.0.0-linux-arm64.deb"
+      }
+    ]
+  }
 ]

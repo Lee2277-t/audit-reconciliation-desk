@@ -5,12 +5,15 @@ const destination = path.join(root, 'web-dist');
 copyApp(destination);
 const catalog = JSON.parse(fs.readFileSync(path.join(root, 'release-downloads.json'), 'utf8'));
 function escape(value) { return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function downloadLink(item) {
+  const url = new URL(item.url);
+  if (url.protocol !== 'https:') throw new Error('安装包地址必须使用 HTTPS');
+  return `<a href="${escape(url.href)}" rel="noreferrer">${escape(item.label || '下载安装包')}</a>`;
+}
 const choices = catalog.map(item => {
   let link = '<span class="distribution-status">安装包下载地址待发布</span>';
   if (item.url) {
-    const url = new URL(item.url);
-    if (url.protocol !== 'https:') throw new Error('安装包地址必须使用 HTTPS');
-    link = `<a href="${escape(url.href)}" rel="noreferrer">${escape(item.label || '下载安装包')}</a>`;
+    link = [item, ...(item.alternatives || [])].map(downloadLink).join('<br>');
   }
   return `<article class="distribution-option"><h3>${escape(item.name)}</h3><p>${escape(item.support)}</p>${link}</article>`;
 }).join('\n');
