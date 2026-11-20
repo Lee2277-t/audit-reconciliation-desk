@@ -111,7 +111,7 @@ pnpm test           # = node tests/run-all.cjs
 
 ## 许可
 
-MIT，见 [LICENSE](LICENSE)。第三方组件许可见 [第三方许可.txt](第三方许可.txt)。
+AGPL-3.0-only，见 [LICENSE](LICENSE)。第三方组件许可见 [第三方许可.txt](第三方许可.txt)。
 
 ---
 
@@ -127,4 +127,4 @@ The net amount is a difference for prioritising and preparing confirmations — 
 
 **Quick start:** open `index.html` (keep `assets/` and `vendor/` beside it), or `pnpm install --frozen-lockfile && pnpm start` for the desktop app; `pnpm test` runs the reconciliation regression suite.
 
-MIT licensed. Bundled third-party notices are in `第三方许可.txt`.
+AGPL-3.0-only licensed. Bundled third-party notices are in `第三方许可.txt`.
